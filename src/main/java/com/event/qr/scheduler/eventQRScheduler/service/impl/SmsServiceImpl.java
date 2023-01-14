@@ -2,10 +2,8 @@ package com.event.qr.scheduler.eventQRScheduler.service.impl;
 
 import com.event.qr.scheduler.eventQRScheduler.client.SmsApiClient;
 import com.event.qr.scheduler.eventQRScheduler.dto.SmsApi2Request;
-import com.event.qr.scheduler.eventQRScheduler.dto.SmsSendRequest;
 import com.event.qr.scheduler.eventQRScheduler.exception.InvalidFormatException;
 import com.event.qr.scheduler.eventQRScheduler.exception.SendSmsException;
-import com.event.qr.scheduler.eventQRScheduler.model.MessageElement;
 import com.event.qr.scheduler.eventQRScheduler.service.SmsService;
 import com.event.qr.scheduler.eventQRScheduler.util.AppConstatnt;
 import com.event.qr.scheduler.eventQRScheduler.util.CommonUtil;
@@ -16,8 +14,6 @@ import org.springframework.stereotype.Service;
 
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 public class SmsServiceImpl implements SmsService {

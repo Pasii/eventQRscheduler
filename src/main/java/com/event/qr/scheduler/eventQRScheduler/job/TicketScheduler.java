@@ -3,6 +3,7 @@ package com.event.qr.scheduler.eventQRScheduler.job;
 import com.event.qr.scheduler.eventQRScheduler.exception.InvalidFormatException;
 import com.event.qr.scheduler.eventQRScheduler.exception.SendSmsException;
 import com.event.qr.scheduler.eventQRScheduler.model.QrTicket;
+import com.event.qr.scheduler.eventQRScheduler.model.TicketType;
 import com.event.qr.scheduler.eventQRScheduler.service.SmsService;
 import com.event.qr.scheduler.eventQRScheduler.service.TicketCreationService;
 import com.event.qr.scheduler.eventQRScheduler.util.AppConstatnt;
@@ -14,6 +15,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Configuration
 @EnableScheduling
@@ -25,7 +28,7 @@ public class TicketScheduler {
     @Autowired
     SmsService smsService;
 
-    @Scheduled(fixedDelay = 300000)
+    @Scheduled(fixedDelay = 10000)
     public void createTicketJob() {
         System.out.println("_____Ticket creating task running.....");
 

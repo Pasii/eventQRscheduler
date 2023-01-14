@@ -5,6 +5,8 @@ public class TicketType {
     private String ticketType;
     private int ticketCount;
     private String orderNo;
+    private String sku;
+    private String varation;
 
     public String getTicketType() {
         return ticketType;
@@ -30,12 +32,30 @@ public class TicketType {
         this.orderNo = orderNo;
     }
 
+    public String getSku() {
+        return sku;
+    }
+
+    public void setSku(String sku) {
+        this.sku = sku;
+    }
+
+    public String getVaration() {
+        return varation;
+    }
+
+    public void setVaration(String varation) {
+        this.varation = varation;
+    }
+
     @Override
     public String toString() {
         return "TicketType{" +
                 "ticketType='" + ticketType + '\'' +
                 ", ticketCount=" + ticketCount +
                 ", orderNo='" + orderNo + '\'' +
+                ", sku='" + sku + '\'' +
+                ", varation='" + varation + '\'' +
                 '}';
     }
 }

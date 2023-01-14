@@ -14,7 +14,8 @@ public class AppConstatnt {
     public static final String ALREADY_PREOCESSED_MESSAGE = "Ticket is Already Admitted";
     public static final String TICKET_ADMITED_SUCCESS_MESSAGE = "Ticket has been Admitted successfully";
 
-    public static final String FRONTEND_BASE_URL =  "https://daraztickets.lk/"; //"https://production.d1peiyh6kw5bru.amplifyapp.com/";
+    public static final String FRONTEND_BASE_URL = "http://xticlpl.s3-website-us-west-2.amazonaws.com/";
+            //"https://daraztickets.lk/"; //"https://production.d1peiyh6kw5bru.amplifyapp.com/";
 
     public static final String SMS_API_USER = "Afdhal@ede";
     public static final String SMS_API_PWD = "Afdhal@321";
@@ -26,7 +27,12 @@ public class AppConstatnt {
     public static final String SMS_API_2_AUTH_URL = "https://digitalreachapi.dialog.lk/refresh_token.php";
     public static final String SMS_API_2_URL = "https://digitalreachapi.dialog.lk/camp_req.php";
 
-    public static final String ACCESS_TOKEN = "50000100e03j6ow152f92d8or9Z5jzEotAwuE7DdsgsrTFfjwmVExu9kK0pTT";
+    public static final String ACCESS_TOKEN = "50000100b20fn7iBpVnwdeamxDmvBSQf1cbd343bZEipdNrzFlDunxdyG1db1";
 
-    public static final String SMS_CONTENT = "Hey! Congratulations, you have got yourself a Cup Cake for Rs 1! Click here to download the QR Code and present it to collect your Cup Cake";
+    public static final String SMS_CONTENT = "SMS - Hey! Click here to download your I LOVE UNA Ticket(s)";
+    public static final String SMS_CONTENT_2 = "Show the QR at the Gate to enter!";
+
+    public static final String SELLER_1 = "SELLER_1";
+    public static final String SELLER_2 = "SELLER_2";
+    public static final String SELLER_LPL = "SELLER_LPL";
 }

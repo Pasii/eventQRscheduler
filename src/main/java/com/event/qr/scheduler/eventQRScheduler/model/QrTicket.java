@@ -13,6 +13,7 @@ public class QrTicket {
     private String ticketStatus;
     private List<TicketType> ticketTypeList;
     private String email;
+    private String seller;
 
     public int getId() {
         return id;
@@ -86,6 +87,14 @@ public class QrTicket {
         this.email = email;
     }
 
+    public String getSeller() {
+        return seller;
+    }
+
+    public void setSeller(String seller) {
+        this.seller = seller;
+    }
+
     @Override
     public String toString() {
         return "QrTicket{" +
@@ -98,6 +107,7 @@ public class QrTicket {
                 ", ticketStatus='" + ticketStatus + '\'' +
                 ", ticketTypeList=" + ticketTypeList +
                 ", email='" + email + '\'' +
+                ", seller='" + seller + '\'' +
                 '}';
     }
 }

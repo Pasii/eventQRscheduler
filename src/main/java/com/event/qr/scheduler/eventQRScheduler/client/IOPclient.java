@@ -2,7 +2,10 @@ package com.event.qr.scheduler.eventQRScheduler.client;
 
 import com.event.qr.scheduler.eventQRScheduler.dto.items.IOPItemsResponse;
 import com.event.qr.scheduler.eventQRScheduler.dto.items.IOPRtsResponse;
+import com.event.qr.scheduler.eventQRScheduler.dto.items.ItemData;
+import com.event.qr.scheduler.eventQRScheduler.dto.orders.Data;
 import com.event.qr.scheduler.eventQRScheduler.dto.orders.IOPOrdersResponse;
+import com.event.qr.scheduler.eventQRScheduler.dto.orders.Order;
 import com.event.qr.scheduler.eventQRScheduler.exception.IOPApiException;
 import com.event.qr.scheduler.eventQRScheduler.util.AppConstatnt;
 import com.global.iop.api.IopClientImpl;
@@ -11,6 +14,7 @@ import com.global.iop.api.IopResponse;
 import com.global.iop.util.ApiException;
 import com.google.gson.Gson;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class IOPclient {
@@ -41,6 +45,18 @@ public class IOPclient {
         //System.out.println(response.getBody());
 
         IOPOrdersResponse iopResponse = new Gson().fromJson(response.getBody(), IOPOrdersResponse.class);
+//        IOPOrdersResponse iopResponse = new IOPOrdersResponse();
+//        Data data1 = new Data();
+//        Order order1 = new Order();
+//        Order order2 = new Order();
+//        order1.setOrder_number("12345600005");
+//        order2.setOrder_number("12345600006");
+//        ArrayList<Order> orderList = new ArrayList<>();
+//        orderList.add(order1);
+//        orderList.add(order2);
+//        data1.setOrders(orderList);
+//        iopResponse.setData(data1);
+//        iopResponse.setCode("0");
 
         System.out.println("code :"+iopResponse.getCode()+" request id :"+iopResponse.request_id);
 
@@ -70,7 +86,25 @@ public class IOPclient {
         IopResponse response = client.execute(request, AppConstatnt.ACCESS_TOKEN);
         //System.out.println(response.getBody());
         IOPItemsResponse iopItemsResponse = new Gson().fromJson(response.getBody(),IOPItemsResponse.class);
+//        ArrayList<ItemData> itemDataArrayList1 = new ArrayList<>();
+//        IOPItemsResponse iopItemsResponse = new IOPItemsResponse();
+//        ItemData itemData1 = new ItemData();
+//        itemData1.setOrder_item_id(123456004);
+//        itemData1.setName("Type 1");
+//        itemData1.setDigital_delivery_info("0717855481");
+//        itemData1.setSku("12345");
+//        itemDataArrayList1.add(itemData1);
+//
+//        ItemData itemData2 = new ItemData();
+//        itemData2.setOrder_item_id(123456005);
+//        itemData2.setDigital_delivery_info("0717855481");
+//        itemData2.setName("Type 1");
+//        itemData2.setSku("123212");
+//        itemDataArrayList1.add(itemData2);
         System.out.println(iopItemsResponse.toString());
+//
+//        iopItemsResponse.setCode("0");
+//        iopItemsResponse.setData(itemDataArrayList1);
         return iopItemsResponse;
     }
 
@@ -80,6 +114,7 @@ public class IOPclient {
         request.setApiName("/order/rts");
         request.addApiParameter("order_item_ids", orderIdList.toString());
         request.addApiParameter("delivery_type", "dropship");
+        request.addApiParameter("tracking_number", "");
         IopResponse response = client.execute(request, AppConstatnt.ACCESS_TOKEN);
         IOPRtsResponse iopRtsResponse = new Gson().fromJson(response.getBody(),IOPRtsResponse.class);
         //System.out.println(response.getBody());

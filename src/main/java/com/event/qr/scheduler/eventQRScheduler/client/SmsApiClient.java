@@ -27,6 +27,8 @@ public class SmsApiClient {
 
     Logger logger = LogManager.getLogger(SmsApiClient.class);
 
+    static String accessAuthToken = "1234";
+
     public void sendSMS(SmsSendRequest request) throws URISyntaxException, NoSuchAlgorithmException, SendSmsException, JsonProcessingException {
 
         String pwd = AppConstatnt.SMS_API_PWD;
@@ -67,11 +69,9 @@ public class SmsApiClient {
 
         String url = AppConstatnt.SMS_API_2_URL;
 
-        String authToken = smsApi2AuthToken();
-
         HttpHeaders headers = new HttpHeaders();
 
-        headers.set("Authorization",authToken);
+        headers.set("Authorization",accessAuthToken);
         headers.set("Content-Type", "application/json");
         headers.set("Accept", "application/json");
 
@@ -82,7 +82,21 @@ public class SmsApiClient {
         ResponseEntity<SmsApi2Response> response = restTemplate.exchange(url,HttpMethod.POST, requestEntity, SmsApi2Response.class);
 
         logger.info("_____sms api 2 response "+response.toString());
-        if (!response.getBody().getError().equals("0")) {
+        if (response.getBody().getError().equals("104") || response.getBody().getError().equals("105")) {
+            logger.info("_____access token has expired. getting new Access token.......");
+            accessAuthToken = smsApi2AuthToken();
+
+            logger.info("_____retry sms with new access token......");
+            //retry same SMS....
+
+            headers.set("Authorization",accessAuthToken); //set new auth header
+
+            HttpEntity<SmsApi2Request> requestEntity2 = new HttpEntity<>(request, headers);
+            ResponseEntity<SmsApi2Response> response2 = restTemplate.exchange(url,HttpMethod.POST, requestEntity2, SmsApi2Response.class);
+            logger.info("_____sms api 2 response "+response2.toString());
+
+
+        } else if (!response.getBody().getError().equals("0")) {
             throw new SendSmsException("Sms exception failed");
         }
 

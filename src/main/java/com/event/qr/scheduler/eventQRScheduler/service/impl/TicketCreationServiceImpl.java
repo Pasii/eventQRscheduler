@@ -1,6 +1,7 @@
 package com.event.qr.scheduler.eventQRScheduler.service.impl;
 
 import com.event.qr.scheduler.eventQRScheduler.client.IOPclient;
+import com.event.qr.scheduler.eventQRScheduler.client.SmsApiClient;
 import com.event.qr.scheduler.eventQRScheduler.dto.items.IOPItemsResponse;
 import com.event.qr.scheduler.eventQRScheduler.dto.items.ItemData;
 import com.event.qr.scheduler.eventQRScheduler.dto.orders.IOPOrdersResponse;
@@ -18,8 +19,6 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +38,7 @@ public class TicketCreationServiceImpl implements TicketCreationService {
     SmsService smsService;
 
     @Override
-    public String createTicket(QrTicket qrTicket) {
+    public String createTicket(QrTicket qrTicket, int itemCount) {
         String qrString = null;
         String ticketId = null;
 
@@ -66,13 +65,13 @@ public class TicketCreationServiceImpl implements TicketCreationService {
             String urlForSendToCus = AppConstatnt.FRONTEND_BASE_URL+"qr-loader/"+ticketId;
             logger.info("__________URL send for cus :"+urlForSendToCus);
 
-            String smsContent = AppConstatnt.SMS_CONTENT+" "+urlForSendToCus;
-
+            String smsContent = AppConstatnt.SMS_CONTENT +" "+urlForSendToCus+" "+AppConstatnt.SMS_CONTENT_2;
+            //logger.info("SMS content "+smsContent);
             if (qrTicket.getMobileNo() != null && !qrTicket.getMobileNo().equals("")) {
 
                 logger.info("______sending sms to mobileNo :"+qrTicket.getMobileNo());
                 try {
-                    smsService.sendSMS(qrTicket.getMobileNo(), smsContent, ticketId);
+                    smsService.sendSMS(qrTicket.getMobileNo(), smsContent, ticketId); //TODO - uncomment this before go live
                     //update sms send status
                     qrTicketRepository.updateTicketStatus(qrTicket.getOrderNo(),"S");
                 } catch (Exception e) {
@@ -105,8 +104,14 @@ public class TicketCreationServiceImpl implements TicketCreationService {
         logger.info("__________get ticket details from API....");
 
         IOPclient ioPclient = new IOPclient();
+        SmsApiClient smsApiClient = new SmsApiClient();
         List<Order> orderList = new ArrayList<>();
+        String smsAutToken;
         try {
+
+            //logger.info("__________getting SMS Auth token.....");
+            //smsAutToken = smsApiClient.smsApi2AuthToken();
+            //smsAutToken = "1671013606667"; /** Temporary hard coded access tocken*/
 
             IOPOrdersResponse iopOrdersResponse = ioPclient.getOrders();
             orderList = iopOrdersResponse.getData().getOrders();
@@ -116,14 +121,13 @@ public class TicketCreationServiceImpl implements TicketCreationService {
             //iterate through the order
             for (Order order : orderList) {
 
+                int itemCount = 0;
+
                 QrTicket qrTicket = new QrTicket();
                 List<ItemData> itemDataList = new ArrayList<>();
                 List<TicketType> ticketTypeList = new ArrayList<>();
-                logger.info("_____order No : "+order.getOrder_number());
+                logger.info("_____order No : " + order.getOrder_number());
                 qrTicket.setOrderNo(order.getOrder_number());
-
-                //logger.info("_____mobile no :"+order.getAddress_billing().getPhone());
-                //qrTicket.setMobileNo(order.getAddress_billing().getPhone());
 
                 //consume orders items api and get items list and create list
                 IOPItemsResponse iopItemsResponse = ioPclient.getItems(order.getOrder_number());
@@ -140,13 +144,15 @@ public class TicketCreationServiceImpl implements TicketCreationService {
 
                 List<String> orderItemIdList = new ArrayList<>();
 
-                // iterate through the item list
                 for (ItemData itemData : itemDataList) {
 
                     TicketType ticketType = new TicketType();
-                    logger.info("_____order id from items : "+itemData.getOrder_item_id());
+                    logger.info("_____order id from items : " + itemData.getOrder_item_id());
                     ticketType.setOrderNo(order.getOrder_number());
-                    ticketType.setTicketType(itemData.getName());
+                    logger.info("___________Variation : " + itemData.getVariation());
+                    ticketType.setTicketType(itemData.getName()); //set ticket type
+                    ticketType.setSku(itemData.getSku()); //set sku
+                    ticketType.setVaration(itemData.getVariation()); //set variation
                     ticketTypeList.add(ticketType);
 
                     orderItemIdList.add(String.valueOf(itemData.getOrder_item_id()));
@@ -159,17 +165,25 @@ public class TicketCreationServiceImpl implements TicketCreationService {
                 //call create ticket method
                 try {
 
-                    createTicket(qrTicket); //create qr ticket and send sms
+                    //temporary set hard coded seller
+                    qrTicket.setSeller(AppConstatnt.SELLER_1);
 
-                    //consume update order status API
-                    logger.info("_______order item id list :"+orderItemIdList.toString());
-                    ioPclient.updateTicketStatus(orderItemIdList);
+                    createTicket(qrTicket,itemCount); //create qr ticket and send sms
+
 
                 } catch (Exception e) {
 
                     logger.info("__________error from create ticket method");
 
                 }
+                    //logger.info("_____sleep one sec....");
+                    //Thread.sleep(1000); //wait one second - sms gateway problem
+
+
+                //consume update order status API
+                logger.info("_______order item id list :"+orderItemIdList.toString());
+                ioPclient.updateTicketStatus(orderItemIdList); //TODO - uncomment before go live
+
 
             }
 
@@ -193,12 +207,12 @@ public class TicketCreationServiceImpl implements TicketCreationService {
         //String randomNumb = String.format("%04d", random.nextInt(10000));
         String currentTimestamp = String.valueOf(System.currentTimeMillis());
         String qrStr =  orderNo + currentTimestamp;
-        final MessageDigest digest = MessageDigest.getInstance("SHA3-256");
-        final byte[] hashbytes = digest.digest(
-                qrStr.getBytes(StandardCharsets.UTF_8));
-        String sha3Hex = bytesToHex(hashbytes);
+//        final MessageDigest digest = MessageDigest.getInstance("SHA3-256");
+//        final byte[] hashbytes = digest.digest(
+//                qrStr.getBytes(StandardCharsets.UTF_8));
+//        String sha3Hex = bytesToHex(hashbytes);
 
-        return sha3Hex;
+        return qrStr;
 
     }
 
