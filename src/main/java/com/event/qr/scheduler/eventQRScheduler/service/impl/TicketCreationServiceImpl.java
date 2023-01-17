@@ -9,6 +9,7 @@ import com.event.qr.scheduler.eventQRScheduler.dto.orders.Order;
 import com.event.qr.scheduler.eventQRScheduler.exception.DuplicateRecordException;
 import com.event.qr.scheduler.eventQRScheduler.exception.IOPApiException;
 import com.event.qr.scheduler.eventQRScheduler.model.QrTicket;
+import com.event.qr.scheduler.eventQRScheduler.model.Seller;
 import com.event.qr.scheduler.eventQRScheduler.model.TicketType;
 import com.event.qr.scheduler.eventQRScheduler.repository.QrTicketRepository;
 import com.event.qr.scheduler.eventQRScheduler.service.SmsService;
@@ -38,7 +39,7 @@ public class TicketCreationServiceImpl implements TicketCreationService {
     SmsService smsService;
 
     @Override
-    public String createTicket(QrTicket qrTicket, int itemCount) {
+    public String createTicket(QrTicket qrTicket, int itemCount, String smsContent1, String smsContent2, String frontEndUrl) {
         String qrString = null;
         String ticketId = null;
 
@@ -59,13 +60,10 @@ public class TicketCreationServiceImpl implements TicketCreationService {
 
             qrTicketRepository.addTicketDetails(qrTicket);
 
-            //qrTicketRepository.addTicketTypes
 
-            //http://localhost:3000/qr-loader/40000001
-            String urlForSendToCus = AppConstatnt.FRONTEND_BASE_URL+"qr-loader/"+ticketId;
-            logger.info("__________URL send for cus :"+urlForSendToCus);
+            logger.info("__________URL send for cus :"+frontEndUrl);
 
-            String smsContent = AppConstatnt.SMS_CONTENT +" "+urlForSendToCus+" "+AppConstatnt.SMS_CONTENT_2;
+            String smsContent = smsContent1 +" "+frontEndUrl+" "+smsContent2;
             //logger.info("SMS content "+smsContent);
             if (qrTicket.getMobileNo() != null && !qrTicket.getMobileNo().equals("")) {
 
@@ -80,7 +78,7 @@ public class TicketCreationServiceImpl implements TicketCreationService {
 
             } else {
 
-                logger.info("_____sending email for.....");
+                logger.info("_____sending email for.....NOT implemented yet");
                 //TODO - send email - ..................
             }
 
@@ -99,7 +97,34 @@ public class TicketCreationServiceImpl implements TicketCreationService {
     }
 
     @Override
-    public void getTicketDetailsFromAPI() {
+    public void ticketProcess() {
+
+        try {
+            //get details from config table
+            List<Seller> sellerList = qrTicketRepository.getSellerConfigDetails();
+            logger.info("_____seller list :"+sellerList);
+
+            if (!sellerList.isEmpty()) {
+                //iterate through list and call API method
+                for (Seller seller : sellerList) {
+                    logger.info("_____seller :"+seller.getSellerType());
+                    getTicketDetailsFromAPI(seller.getAppKey(),seller.getAppSecret(),seller.getAccessToken(),seller.getSmsContent1(),
+                            seller.getSmsContent2(),seller.getFrontEndUrl(),seller.getSellerType());
+                }
+            } else {
+                logger.info("_____seller config list is empty...");
+            }
+
+
+        } catch (Exception e) {
+            logger.info("_____Exception : "+e.getMessage());
+        }
+
+    }
+
+    @Override
+    public void getTicketDetailsFromAPI(String appKey, String appSecret, String accessToken, String smsContent1,
+                                        String smsContent2, String frontEndUrl, String sellerType) {
 
         logger.info("__________get ticket details from API....");
 
@@ -113,7 +138,7 @@ public class TicketCreationServiceImpl implements TicketCreationService {
             //smsAutToken = smsApiClient.smsApi2AuthToken();
             //smsAutToken = "1671013606667"; /** Temporary hard coded access tocken*/
 
-            IOPOrdersResponse iopOrdersResponse = ioPclient.getOrders();
+            IOPOrdersResponse iopOrdersResponse = ioPclient.getOrders(appKey,appSecret,accessToken);
             orderList = iopOrdersResponse.getData().getOrders();
             Pattern p = Pattern.compile("^\\d{10}$");
             logger.info("_____order list : "+orderList.toString());
@@ -130,7 +155,7 @@ public class TicketCreationServiceImpl implements TicketCreationService {
                 qrTicket.setOrderNo(order.getOrder_number());
 
                 //consume orders items api and get items list and create list
-                IOPItemsResponse iopItemsResponse = ioPclient.getItems(order.getOrder_number());
+                IOPItemsResponse iopItemsResponse = ioPclient.getItems(order.getOrder_number(),appKey,appSecret,accessToken);
                 itemDataList = iopItemsResponse.getData();
 
                 //check mobile no or email
@@ -165,10 +190,10 @@ public class TicketCreationServiceImpl implements TicketCreationService {
                 //call create ticket method
                 try {
 
-                    //temporary set hard coded seller
-                    qrTicket.setSeller(AppConstatnt.SELLER_1);
+                    //set seller
+                    qrTicket.setSeller(sellerType);
 
-                    createTicket(qrTicket,itemCount); //create qr ticket and send sms
+                    createTicket(qrTicket,itemCount,smsContent1,smsContent2,frontEndUrl); //create qr ticket and send sms
 
 
                 } catch (Exception e) {
@@ -182,7 +207,7 @@ public class TicketCreationServiceImpl implements TicketCreationService {
 
                 //consume update order status API
                 logger.info("_______order item id list :"+orderItemIdList.toString());
-                ioPclient.updateTicketStatus(orderItemIdList); //TODO - uncomment before go live
+                ioPclient.updateTicketStatus(orderItemIdList,appKey,appSecret,accessToken); //TODO - uncomment before go live
 
 
             }

@@ -29,10 +29,14 @@ public class AppConstatnt {
 
     public static final String ACCESS_TOKEN = "50000100b20fn7iBpVnwdeamxDmvBSQf1cbd343bZEipdNrzFlDunxdyG1db1";
 
-    public static final String SMS_CONTENT = "SMS - Hey! Click here to download your I LOVE UNA Ticket(s)";
+    public static final String SMS_CONTENT = "Hey! Click here to download your I LOVE UNA Ticket(s)";
     public static final String SMS_CONTENT_2 = "Show the QR at the Gate to enter!";
 
     public static final String SELLER_1 = "SELLER_1";
     public static final String SELLER_2 = "SELLER_2";
     public static final String SELLER_LPL = "SELLER_LPL";
+
+    public static final String DARZ_TICKET_API_URL = "https://api.daraz.lk/rest";
+
+    public static final String SMS_API_AUTH_CODE_104 = "104";
 }

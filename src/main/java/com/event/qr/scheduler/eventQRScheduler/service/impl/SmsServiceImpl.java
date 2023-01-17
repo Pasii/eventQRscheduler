@@ -52,7 +52,7 @@ public class SmsServiceImpl implements SmsService {
 
         SmsApi2Request request = new SmsApi2Request();
         request.setMsisdn(formattedMobileNo); //set mobile no
-        request.setChannel("9"); //Short sms (TRANSACTIONAL up to 160 characters
+        request.setChannel("9");
         request.setMsg(smsContent);
         request.setMt_port(AppConstatnt.SMS_MASK);
 

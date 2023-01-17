@@ -2,17 +2,20 @@ package com.event.qr.scheduler.eventQRScheduler.repository.impl;
 
 import com.event.qr.scheduler.eventQRScheduler.exception.DuplicateRecordException;
 import com.event.qr.scheduler.eventQRScheduler.model.QrTicket;
+import com.event.qr.scheduler.eventQRScheduler.model.Seller;
 import com.event.qr.scheduler.eventQRScheduler.model.TicketType;
 import com.event.qr.scheduler.eventQRScheduler.repository.QrTicketRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.List;
 
 @Repository
 public class QrTicketRepositoryImpl implements QrTicketRepository {
@@ -81,5 +84,29 @@ public class QrTicketRepositoryImpl implements QrTicketRepository {
                 "order_no = ?";
 
         jdbcTemplate.update(sql,new Object[]{status,orderNo});
+    }
+
+    @Override
+    public List<Seller> getSellerConfigDetails() {
+
+        String sql = "SELECT id,seller_type, seller_status, app_key, app_secret, access_token," +
+                " sms_content_1, sms_content_2, front_end_url FROM qrticket.SELLER_CONFIG " +
+                "where seller_status = 'ACTIVE' ";
+
+        RowMapper<Seller> sellerRowMapper = ((rs, rowNum) -> {
+            Seller obj = new Seller();
+            obj.setId(rs.getLong("ID"));
+            obj.setSellerType(rs.getString("SELLER_TYPE"));
+            obj.setSellerStatus(rs.getString("SELLER_STATUS"));
+            obj.setAppKey(rs.getString("APP_KEY"));
+            obj.setAppSecret(rs.getString("APP_SECRET"));
+            obj.setAccessToken(rs.getString("ACCESS_TOKEN"));
+            obj.setSmsContent1(rs.getString("SMS_CONTENT_1"));
+            obj.setSmsContent2(rs.getString("SMS_CONTENT_2"));
+            obj.setFrontEndUrl(rs.getString("FRONT_END_URL"));
+            return obj;
+        });
+
+        return jdbcTemplate.query(sql, sellerRowMapper );
     }
 }

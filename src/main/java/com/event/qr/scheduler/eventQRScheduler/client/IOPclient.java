@@ -2,10 +2,7 @@ package com.event.qr.scheduler.eventQRScheduler.client;
 
 import com.event.qr.scheduler.eventQRScheduler.dto.items.IOPItemsResponse;
 import com.event.qr.scheduler.eventQRScheduler.dto.items.IOPRtsResponse;
-import com.event.qr.scheduler.eventQRScheduler.dto.items.ItemData;
-import com.event.qr.scheduler.eventQRScheduler.dto.orders.Data;
 import com.event.qr.scheduler.eventQRScheduler.dto.orders.IOPOrdersResponse;
-import com.event.qr.scheduler.eventQRScheduler.dto.orders.Order;
 import com.event.qr.scheduler.eventQRScheduler.exception.IOPApiException;
 import com.event.qr.scheduler.eventQRScheduler.util.AppConstatnt;
 import com.global.iop.api.IopClientImpl;
@@ -14,7 +11,6 @@ import com.global.iop.api.IopResponse;
 import com.global.iop.util.ApiException;
 import com.google.gson.Gson;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class IOPclient {
@@ -24,11 +20,11 @@ public class IOPclient {
 //    //"country":"LK",
 //    String refresh_token = "500011016030cud1cba7badjr9svgcDhtepxVDHgMJ3dQV9iZEOPhLo3Ddnao";
 
-    IopClientImpl client = new IopClientImpl("https://api.daraz.lk/rest",
-            "500678", "yXCsSFrDM52DtwmTOfKRnsUzibsztMes") ;
+//    IopClientImpl client = new IopClientImpl("https://api.daraz.lk/rest",
+//            "500678", "yXCsSFrDM52DtwmTOfKRnsUzibsztMes") ;
 
-    public IOPOrdersResponse getOrders() throws ApiException, IOPApiException {
-        //IopClientImpl client = new IopClientImpl("https://api.daraz.lk/rest", "500678", "yXCsSFrDM52DtwmTOfKRnsUzibsztMes");
+    public IOPOrdersResponse getOrders(String appKey, String appSecret, String accessToken) throws ApiException, IOPApiException {
+        IopClientImpl client = new IopClientImpl(AppConstatnt.DARZ_TICKET_API_URL, appKey, appSecret);
         IopRequest request = new IopRequest();
         request.setApiName("/orders/get");
         request.setHttpMethod("GET");
@@ -41,7 +37,7 @@ public class IOPclient {
         //request.addApiParameter("created_before", "2022-09-23T00:10:00+08:00");
         request.addApiParameter("created_after", "2017-02-10T09:00:00+08:00");
         request.addApiParameter("status", "pending");
-        IopResponse response = client.execute(request, AppConstatnt.ACCESS_TOKEN);
+        IopResponse response = client.execute(request, accessToken);
         //System.out.println(response.getBody());
 
         IOPOrdersResponse iopResponse = new Gson().fromJson(response.getBody(), IOPOrdersResponse.class);
@@ -68,8 +64,9 @@ public class IOPclient {
     }
 
 
-    public void getOrder(String order_number) throws ApiException {
+    public void getOrder(String order_number,String appKey, String appSecret, String accessToken) throws ApiException {
 
+        IopClientImpl client = new IopClientImpl(AppConstatnt.DARZ_TICKET_API_URL, appKey, appSecret);
         IopRequest request = new IopRequest();
         request.setApiName("/order/get");
         request.addApiParameter("order_id", order_number);
@@ -77,13 +74,14 @@ public class IOPclient {
         System.out.println(response.getBody());
     }
 
-    public IOPItemsResponse getItems(String orderNo) throws ApiException {
+    public IOPItemsResponse getItems(String orderNo,String appKey, String appSecret, String accessToken) throws ApiException {
 
+        IopClientImpl client = new IopClientImpl(AppConstatnt.DARZ_TICKET_API_URL, appKey, appSecret);
         IopRequest request = new IopRequest();
         request.setApiName("/order/items/get");
         request.setHttpMethod("GET");
         request.addApiParameter("order_id", orderNo);
-        IopResponse response = client.execute(request, AppConstatnt.ACCESS_TOKEN);
+        IopResponse response = client.execute(request, accessToken);
         //System.out.println(response.getBody());
         IOPItemsResponse iopItemsResponse = new Gson().fromJson(response.getBody(),IOPItemsResponse.class);
 //        ArrayList<ItemData> itemDataArrayList1 = new ArrayList<>();
@@ -108,14 +106,15 @@ public class IOPclient {
         return iopItemsResponse;
     }
 
-    public void updateTicketStatus(List<String> orderIdList) throws ApiException, IOPApiException {
+    public void updateTicketStatus(List<String> orderIdList,String appKey, String appSecret, String accessToken) throws ApiException, IOPApiException {
 
+        IopClientImpl client = new IopClientImpl(AppConstatnt.DARZ_TICKET_API_URL, appKey, appSecret);
         IopRequest request = new IopRequest();
         request.setApiName("/order/rts");
         request.addApiParameter("order_item_ids", orderIdList.toString());
         request.addApiParameter("delivery_type", "dropship");
         request.addApiParameter("tracking_number", "");
-        IopResponse response = client.execute(request, AppConstatnt.ACCESS_TOKEN);
+        IopResponse response = client.execute(request, accessToken);
         IOPRtsResponse iopRtsResponse = new Gson().fromJson(response.getBody(),IOPRtsResponse.class);
         //System.out.println(response.getBody());
         System.out.println(iopRtsResponse.toString());

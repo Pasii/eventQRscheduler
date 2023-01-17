@@ -32,7 +32,7 @@ public class TicketScheduler {
     public void createTicketJob() {
         System.out.println("_____Ticket creating task running.....");
 
-        ticketCreationService.getTicketDetailsFromAPI();
+        ticketCreationService.ticketProcess();
 
 //        try {
 //            smsService.sendSMS("0717855481", AppConstatnt.SMS_CONTENT+" "+AppConstatnt.FRONTEND_BASE_URL+"qr-loader/30000001","1234");
